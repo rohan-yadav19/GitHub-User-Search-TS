@@ -1,5 +1,5 @@
 const getusername = document.querySelector("#user") as HTMLInputElement;
-const formSubmit = document.querySelector(".form") as HTMLFormElement;
+const formSubmit = document.querySelector("#form") as HTMLFormElement;
 const main_container = document.querySelector(".main_container") as HTMLElement;
 //defining contract of an object
 
@@ -48,3 +48,30 @@ function fetchUserData(url: string) {
 }
 //default function cal
 fetchUserData("https://api.github.com/users");
+
+//search functionality
+formSubmit.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const searchTerm = getusername.value.toLowerCase();
+  try {
+    const url = "https://api.github.com/users";
+    const allUsersInfo = await myCustomFetcher<UserData[]>(url, {});
+    const matchingUsers = allUsersInfo.filter((user) => {
+      return user.login.toLowerCase().includes(searchTerm);
+    });
+    //we need to clear the previous data
+    main_container.innerHTML = "";
+    if (matchingUsers.length === 0) {
+      main_container?.insertAdjacentHTML(
+        "beforeend",
+        `<p class="empty_msg">No matching users found.</p>`
+      );
+    } else {
+      for (const singleUser of matchingUsers) {
+        showResultUI(singleUser);
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});

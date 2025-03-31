@@ -1,6 +1,6 @@
 "use strict";
 const getusername = document.querySelector("#user");
-const formSubmit = document.querySelector(".form");
+const formSubmit = document.querySelector("#form");
 const main_container = document.querySelector(".main_container");
 //reusable function
 async function myCustomFetcher(url, options) {
@@ -33,3 +33,28 @@ function fetchUserData(url) {
 }
 //default function cal
 fetchUserData("https://api.github.com/users");
+//search functionality
+formSubmit.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const searchTerm = getusername.value.toLowerCase();
+    try {
+        const url = "https://api.github.com/users";
+        const allUsersInfo = await myCustomFetcher(url, {});
+        const matchingUsers = allUsersInfo.filter((user) => {
+            return user.login.toLowerCase().includes(searchTerm);
+        });
+        //we need to clear the previous data
+        main_container.innerHTML = "";
+        if (matchingUsers.length === 0) {
+            main_container?.insertAdjacentHTML("beforeend", `<p class="empty_msg">No matching users found.</p>`);
+        }
+        else {
+            for (const singleUser of matchingUsers) {
+                showResultUI(singleUser);
+            }
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
